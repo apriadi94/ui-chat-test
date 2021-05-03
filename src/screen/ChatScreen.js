@@ -20,6 +20,9 @@ const ChatScreen = ({navigation, route}) => {
     const [Page, setPage] = useState(1)
     const [Search, setSearch] = useState('')
     const [isSearch, setIsSearch] = useState(false)
+    const [ListSearchChat, setListSearchCaht] = useState([])
+    const [OnPageSearch, setOnPageSearch] = useState(null)
+    const [OnIndexSerach, setOnIndexSearch] = useState(0)
 
     const scrollViewRef = useRef();
 
@@ -66,14 +69,15 @@ const ChatScreen = ({navigation, route}) => {
         })
         
         socket.emit('FETCH_MESSAGE', to, Page, Search);
-        socket.on('MESSAGE_SENT', messageList => {
+        socket.on('MESSAGE_SENT', (messageList, ArraySearch) => {
+            console.log(ArraySearch)
+            setListSearchCaht(ArraySearch)
             setChat(messageList)
             socket.emit('READ_MESSAGE', to)
             setLoading(false)
         });
 
         socket.on('PRIVATE_MESSAGE', (message, To) => {
-            console.log(message)
         //    if(To.id === to.id){
         //     setChat(Chat => [...Chat, message])
         //     socket.emit('READ_MESSAGE', to)
@@ -93,11 +97,17 @@ const ChatScreen = ({navigation, route}) => {
     }
 
     const SearchUpChat = () => {
-        socket.emit('FETCH_PREV_SEARCH_MESSAGE', to, Page, Search);
-        socket.on('MESSAGE_SENT_PREV_SEARCH_PAGE', (messageList, LasPage) => {
-            setPage(LasPage)
-            setChat(messageList)
-        });
+        if(ListSearchChat[OnIndexSerach]){
+            socket.emit('FETCH_PREV_SEARCH_MESSAGE', to, ListSearchChat[OnIndexSerach].page, Search);
+            socket.on('MESSAGE_SENT_PREV_SEARCH_PAGE', (messageList, LasPage) => {
+                setOnPageSearch(ListSearchChat[OnIndexSerach].id)
+                setPage(LasPage)
+                setChat(messageList)
+                setOnIndexSearch(OnIndexSerach + 1)
+            });
+        }else{
+            alert('Tidak ada lagi')
+        }
     }
 
     return(
@@ -106,7 +116,10 @@ const ChatScreen = ({navigation, route}) => {
                 isSearch ?
                 <View style={{backgroundColor : '#fff', flexDirection : 'row'}}>
                     <View style={{flex : 1, borderBottomWidth : 1, marginBottom : 10, marginTop : -10, marginHorizontal : 20}}>
-                        <TextInput value={Search} onChangeText={(text) => setSearch(text)}/>
+                        <TextInput value={Search} onChangeText={(text) => {
+                            setSearch(text)
+                            setOnIndexSearch(0)
+                            }}/>
                     </View>
                     <View style={{marginRight : 10, marginTop : 5}}>
                         <Button onPress={SearchUpChat} title='UP'/>
@@ -123,18 +136,20 @@ const ChatScreen = ({navigation, route}) => {
                    {
                        Chat.map((list, index) => 
                         <View key={index} style={{marginTop : 10, alignItems : list.sender === to.id ? 'flex-end' : 'flex-start'}}>
-                            <View style={{backgroundColor : list.sender === to.id ? '#80ffaa' : '#b3daff', height : 50, borderRadius : 10}}>
-                                <View style={{marginTop : 5, marginLeft : 10, marginRight : 10}}>
-                                    {
-                                        list.search ?
-                                        <HighlightText
-                                            highlightStyle={{ backgroundColor: 'yellow' }}
-                                            searchWords={[Search]}
-                                            textToHighlight={list.content}
-                                            caseSensitive={false}
-                                        /> :
-                                        <Text style={{fontSize : 14}}>{list.content}</Text>
-                                    }
+                            <View style={{backgroundColor : list.id === OnPageSearch ? 'white' : 'rgba(76, 175, 80, 0)', borderRadius : 10}}>
+                                <View style={{backgroundColor : list.sender === to.id ? '#80ffaa' : '#b3daff', height : 50, borderRadius : 10, marginHorizontal : 10, marginVertical : 10}}>
+                                    <View style={{marginTop : 5, marginLeft : 10, marginRight : 10}}>
+                                        {
+                                            list.search ?
+                                            <HighlightText
+                                                highlightStyle={{ backgroundColor: 'yellow' }}
+                                                searchWords={[Search]}
+                                                textToHighlight={list.content}
+                                                caseSensitive={false}
+                                            /> :
+                                            <Text style={{fontSize : 14}}>{list.content}</Text>
+                                        }
+                                    </View>
                                 </View>
                             </View>
                         </View>
