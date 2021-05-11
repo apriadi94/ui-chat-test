@@ -11,7 +11,7 @@ const ContactScreen = ({navigation}) => {
     const GetContact = async () => {
         await axios({
             method : 'get',
-            url : 'http://192.168.90.75:3000/contact',
+            url : 'http://192.168.64.113:3000/contact',
             headers : {
                 Accept : 'aplication/json'
             }

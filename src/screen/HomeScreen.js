@@ -8,9 +8,11 @@ const HomeScreen = ({navigation}) => {
   const [Search, setSearch] = useState('')
   const [Loading, setLoading] = useState(true);
 
+
   useEffect(() => {
-    socket.emit('FETCH_USER_MESSAGE', Search)
-    socket.on('USER_MESSAGE_LIST_SENT', data => {
+  
+    socket.emit('FETCH_USER_CONVERSATION', Search)
+    socket.on('USER_CONVERSATION_SENT', data => {
         const newData = [...data].map(item => ({
             id_chat : item.id,
             id : item.userId,
@@ -21,18 +23,6 @@ const HomeScreen = ({navigation}) => {
         }));
         setUser(newData);
         setLoading(false)
-    })
-
-    socket.on('GET_LAST_MESSAGE', data => {
-        const newData = [...data].map(item => ({
-            id_chat : item.id,
-            id : item.userId,
-            name : item.userName,
-            message : item.lastMessage.content,
-            unread : item.unRead,
-            profileImg: `https://picsum.photos/id/${item.userId * 5}/200/300`,
-        }));
-        setUser(newData);
     })
 
     navigation.setOptions({

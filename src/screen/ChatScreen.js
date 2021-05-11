@@ -28,7 +28,7 @@ const ChatScreen = ({navigation, route}) => {
 
     const getPreviusChat = () => {
         socket.emit('FETCH_PREV_MESSAGE', to, Page, Search);
-        socket.on('MESSAGE_SENT_PREV_PAGE', messageList => {
+        socket.on('PREV_MESSAGE_SENT', messageList => {
             setChat(messageList)
         });
         setPage(Page => Page + 1)
@@ -70,19 +70,13 @@ const ChatScreen = ({navigation, route}) => {
         
         socket.emit('FETCH_MESSAGE', to, Page, Search);
         socket.on('MESSAGE_SENT', (messageList, ArraySearch) => {
-            console.log(ArraySearch)
             setListSearchCaht(ArraySearch)
             setChat(messageList)
             socket.emit('READ_MESSAGE', to)
             setLoading(false)
         });
 
-        socket.on('PRIVATE_MESSAGE', (message, To) => {
-        //    if(To.id === to.id){
-        //     setChat(Chat => [...Chat, message])
-        //     socket.emit('READ_MESSAGE', to)
-        //    }
-
+        socket.on('PRIVATE_MESSAGE_SENT', (message, To) => {
             setChat(Chat => [...Chat, message])
             if (to.id_chat !== null) {
                 socket.emit('READ_MESSAGE', to)
@@ -92,14 +86,14 @@ const ChatScreen = ({navigation, route}) => {
     }, [Search, isSearch, Page])
     
     const SendChat = () => {
-        socket.emit('PRIVATE_MESSAGE', content, to)
+        socket.emit('SEND_PRIVATE_MESSAGE', content, [to])
         setcontent({type : 'TEXT', content : ''})
     }
 
     const SearchUpChat = () => {
         if(ListSearchChat[OnIndexSerach]){
             socket.emit('FETCH_PREV_SEARCH_MESSAGE', to, ListSearchChat[OnIndexSerach].page, Search);
-            socket.on('MESSAGE_SENT_PREV_SEARCH_PAGE', (messageList, LasPage) => {
+            socket.on('PREV_SEARCH_MESSAGE_SENT', (messageList, LasPage) => {
                 setOnPageSearch(ListSearchChat[OnIndexSerach].id)
                 setPage(LasPage)
                 setChat(messageList)
