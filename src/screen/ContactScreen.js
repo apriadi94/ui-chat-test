@@ -11,19 +11,16 @@ const ContactScreen = ({navigation}) => {
     const GetContact = async () => {
         await axios({
           method : 'get',
-          url : 'http://cerdas-staging.ap-southeast-1.elasticbeanstalk.com/api/user/student/contacts',
+          url : 'http://172.27.12.208:3000/contact',
           headers : {
-              'Accept-Language' : '',
-              'Authorization' : `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50QGNlcmRhcy5jb20iLCJwZXJtaXNzaW9uIjpbIlJPTEVfUEFHRVNfVklFVyIsIlJPTEVfRElTQ1VTU0lPTl9WSUVXIiwiUk9MRV9GSUxFU19WSUVXIiwiUk9MRV9BU1NJR05NRU5UX1ZJRVciLCJST0xFX0FOTk9VTkNFTUVOVF9WSUVXIiwiUk9MRV9DTEFTU19NQU5BR0VNRU5UX1ZJRVciLCJST0xFX1NDSEVEVUxFX1ZJRVciLCJST0xFX1NZTExBQlVTX1ZJRVciLCJST0xFX01PRFVMRV9WSUVXIiwiUk9MRV9BVFRFTkRBTkNFX1ZJRVciLCJST0xFX0RJU0NVU1NJT05fVVBEQVRFIl0sImV4cCI6MTYyMTg2NDMyOSwiaWF0IjoxNjIxODM1NTI5fQ.DgUjHQGDddbfizAKKlAngDA2ZdW-JxBeaGXjWtUDPdoByeOEHUE3SxcR2qghIfcgxH5ntwvmTrPzF80wafGy6w`,
-              'Device-Id' : '',
-              'Device-Type' : 1
+              'Accept' : 'aplication/json'
           }
         }).then(res => {
-            const newData = [...res.data.data.teachers].map(item => ({
+            const newData = res.data.data.map(item => ({
                 id_chat : null,
-                id : item.userId,
-                name : item.fullName,
-                profileImg: `https://picsum.photos/id/${item.userId * 5}/200/300`,
+                id : item.id,
+                name : item.name,
+                profileImg: `https://picsum.photos/id/${item.id * 5}/200/300`,
             }));
             setUser(newData.filter(item => item.name !== username));
         }).catch(err => {
@@ -70,7 +67,7 @@ const ContactScreen = ({navigation}) => {
                       id: list.id,
                       id_chat : list.id_chat,
                       name: list.name,
-                      profileImg: 'https://picsum.photos/id/10/200/300',
+                      profileImg: list.profileImg,
                     },
                   })
                 }>

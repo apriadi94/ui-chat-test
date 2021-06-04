@@ -2,6 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 import {AuthContext} from '../provider/AuthProvider';
 
+
 const HomeScreen = ({navigation}) => {
   const {socket} = useContext(AuthContext);
   const [User, setUser] = useState([]);
@@ -13,13 +14,14 @@ const HomeScreen = ({navigation}) => {
   
     socket.emit('FETCH_USER_CONVERSATION', Search)
     socket.on('USER_CONVERSATION_SENT', data => {
+      // console.log('USER_CONVERSATION_SENT')
         const newData = [...data].map(item => ({
             id_chat : item.id,
             id : item.userId,
             name : item.userName,
             message : item.lastMessage.content,
             unread : item.unRead,
-            profileImg: `https://picsum.photos/id/${item.userId * 5}/200/300`,
+            profileImg: item.userPicture,
         }));
         setUser(newData);
         setLoading(false)

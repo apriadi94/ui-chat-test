@@ -4,6 +4,8 @@ import { AuthContext } from '../provider/AuthProvider'
 import ImgBg from '../assets/chat-background.png'
 import HighlightText from '@sanar/react-native-highlight-text';
 import { HeaderBackButton } from '@react-navigation/stack';
+import NativeUploady from "@rpldy/native-uploady";
+import Upload from './Upload'
 
 
 
@@ -24,6 +26,9 @@ const ChatScreen = ({navigation, route}) => {
     const [OnPageSearch, setOnPageSearch] = useState(null)
     const [OnIndexSerach, setOnIndexSearch] = useState(0)
 
+    const [dataSourceCords, setDataSourceCords] = useState([]);
+
+
     const scrollViewRef = useRef();
 
     const getPreviusChat = () => {
@@ -36,6 +41,7 @@ const ChatScreen = ({navigation, route}) => {
    
 
     useEffect(() => {
+        
         navigation.setOptions({
             title : to.name,
             headerRight: () => (
@@ -69,18 +75,20 @@ const ChatScreen = ({navigation, route}) => {
         })
         
         socket.emit('FETCH_MESSAGE', to, Page, Search);
-        socket.on('MESSAGE_SENT', (messageList, ArraySearch) => {
+        socket.on('MESSAGE_SENT', async (messageList, ArraySearch) => {
             setListSearchCaht(ArraySearch)
             setChat(messageList)
             socket.emit('READ_MESSAGE', to)
             setLoading(false)
         });
 
+
         socket.on('PRIVATE_MESSAGE_SENT', (message, To) => {
             setChat(Chat => [...Chat, message])
             if (to.id_chat !== null) {
                 socket.emit('READ_MESSAGE', to)
             }
+            scrollViewRef.current.scrollToEnd({animated: true})
            
         });
     }, [Search, isSearch, Page])
@@ -104,6 +112,7 @@ const ChatScreen = ({navigation, route}) => {
         }
     }
 
+
     return(
         <ImageBackground source={ImgBg} style={{flex : 1, backgroundColor : '#fff'}}>
             {
@@ -121,15 +130,25 @@ const ChatScreen = ({navigation, route}) => {
                 </View> : null
             }
             <ScrollView 
-                // ref={scrollViewRef}
-                // onContentSizeChange={() => scrollViewRef.current.scrollToEnd()}
+                ref={scrollViewRef}
+                onContentSizeChange={() => {
+                    if(dataSourceCords.length === 10){
+                        scrollViewRef.current.scrollToEnd({animated: true})
+                    }
+                }}
             >
            {
                Loading ? <View><Text>Loading...</Text></View> :
                <View style={{flex : 1, marginTop : 10, marginHorizontal : 10, marginBottom : 10}}>
                    {
                        Chat.map((list, index) => 
-                        <View key={index} style={{marginTop : 10, alignItems : list.sender === to.id ? 'flex-end' : 'flex-start'}}>
+                        <View 
+                            onLayout={(event) => {
+                                const layout = event.nativeEvent.layout;
+                                dataSourceCords[index] = layout.y;
+                                setDataSourceCords(dataSourceCords);
+                            }}
+                        key={index} style={{marginTop : 10, alignItems : list.sender === to.id ? 'flex-end' : 'flex-start'}}>
                             <View style={{backgroundColor : list.id === OnPageSearch ? 'white' : 'rgba(76, 175, 80, 0)', borderRadius : 10}}>
                                 <View style={{backgroundColor : list.sender === to.id ? '#80ffaa' : '#b3daff', height : 50, borderRadius : 10, marginHorizontal : 10, marginVertical : 10}}>
                                     <View style={{marginTop : 5, marginLeft : 10, marginRight : 10}}>
@@ -154,6 +173,20 @@ const ChatScreen = ({navigation, route}) => {
            </ScrollView>
            <View style={{justifyContent : 'flex-end'}}>
                <View style={{flexDirection : 'row'}}>
+                   <View style={{marginLeft : 10, marginTop : 5, borderRadius : 20}}>
+                   <NativeUploady
+                        destination={{
+                                    url: `http://cerdas-staging.ap-southeast-1.elasticbeanstalk.com/api/chat/upload`,
+                                    headers: {
+                                        "Accept-Language" :"",
+                                        "Device-Id" : "",
+                                        "Device-Type" : 0,
+                                        "Authorization" : `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50QGNlcmRhcy5jb20iLCJwZXJtaXNzaW9uIjpbIlJPTEVfUEFHRVNfVklFVyIsIlJPTEVfRElTQ1VTU0lPTl9WSUVXIiwiUk9MRV9GSUxFU19WSUVXIiwiUk9MRV9BU1NJR05NRU5UX1ZJRVciLCJST0xFX0FOTk9VTkNFTUVOVF9WSUVXIiwiUk9MRV9DTEFTU19NQU5BR0VNRU5UX1ZJRVciLCJST0xFX1NDSEVEVUxFX1ZJRVciLCJST0xFX1NZTExBQlVTX1ZJRVciLCJST0xFX01PRFVMRV9WSUVXIiwiUk9MRV9BVFRFTkRBTkNFX1ZJRVciLCJST0xFX0RJU0NVU1NJT05fVVBEQVRFIiwiUk9MRV9TQ09SRV9WSUVXIl0sImV4cCI6MTYyMjY1NzczOCwiaWF0IjoxNjIyNjI4OTM4fQ._r96XtvQ0CQEth0l990Pgg_99mWUhz6Baef_zG8fL2P1wbM6HegA7mUg1zrrkyi6AQIYAvaktyTISb_pH5uUMA`
+                                    }
+                                }}>
+                        <Upload socket={socket} to={to}/>
+                    </NativeUploady>
+                   </View>
                     <View style={{flex : 1, marginHorizontal : 10, backgroundColor : 'white', height : 40, marginBottom : 10, borderRadius : 10}}>
                             <TextInput style={{color : 'black', fontSize : 18, marginLeft : 10}} value={content.content} onChangeText={(text) => setcontent({...content, content : text})}/>
                     </View>

@@ -8,7 +8,7 @@ const LoginScreen = ({setAuth}) => {
     const GetContact = () => {
         axios({
             method : 'get',
-            url : 'http://192.168.82.43:3000/contact',
+            url : 'http://172.27.12.208:3000/contact',
             headers : {
                 Accept : 'aplication/json'
             }
