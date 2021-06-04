@@ -181,7 +181,7 @@ const ChatScreen = ({navigation, route}) => {
                                         "Accept-Language" :"",
                                         "Device-Id" : "",
                                         "Device-Type" : 0,
-                                        "Authorization" : `Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJzdHVkZW50QGNlcmRhcy5jb20iLCJwZXJtaXNzaW9uIjpbIlJPTEVfUEFHRVNfVklFVyIsIlJPTEVfRElTQ1VTU0lPTl9WSUVXIiwiUk9MRV9GSUxFU19WSUVXIiwiUk9MRV9BU1NJR05NRU5UX1ZJRVciLCJST0xFX0FOTk9VTkNFTUVOVF9WSUVXIiwiUk9MRV9DTEFTU19NQU5BR0VNRU5UX1ZJRVciLCJST0xFX1NDSEVEVUxFX1ZJRVciLCJST0xFX1NZTExBQlVTX1ZJRVciLCJST0xFX01PRFVMRV9WSUVXIiwiUk9MRV9BVFRFTkRBTkNFX1ZJRVciLCJST0xFX0RJU0NVU1NJT05fVVBEQVRFIiwiUk9MRV9TQ09SRV9WSUVXIl0sImV4cCI6MTYyMjY1NzczOCwiaWF0IjoxNjIyNjI4OTM4fQ._r96XtvQ0CQEth0l990Pgg_99mWUhz6Baef_zG8fL2P1wbM6HegA7mUg1zrrkyi6AQIYAvaktyTISb_pH5uUMA`
+                                        "Authorization" : `bearer`
                                     }
                                 }}>
                         <Upload socket={socket} to={to}/>
